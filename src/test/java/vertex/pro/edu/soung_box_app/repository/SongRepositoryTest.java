@@ -7,6 +7,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import vertex.pro.edu.soung_box_app.entity.SongEntity;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static vertex.pro.edu.soung_box_app.utils.prototypes.entity.SongEntityPrototypes.aSongEntity;
 
@@ -31,6 +33,36 @@ class SongRepositoryTest {
         SongEntity loadedSong = entityManager.find(SongEntity.class, entity.getId());
         assertThat(loadedSong).isEqualToIgnoringGivenFields(entity, "releaseDate");
         assertThat(loadedSong.getReleaseDate()).isEqualToIgnoringSeconds(entity.getReleaseDate());
+    }
+
+    @Test
+    void findSongsByGenre() {
+        SongEntity entity = aSongEntity();
+
+        entity = repository.save(entity);
+        entityManager.flush();
+        entityManager.clear();
+
+        List<SongEntity> entities = repository.findByParams(entity.getGenre());
+
+        assertThat(entities).isNotEmpty()
+                .extracting(SongEntity::getId)
+                .containsExactly(entity.getId());
+    }
+
+    @Test
+    void findSongsByNullGenre() {
+        SongEntity entity = aSongEntity();
+
+        entity = repository.save(entity);
+        entityManager.flush();
+        entityManager.clear();
+
+        List<SongEntity> entities = repository.findByParams(null);
+
+        assertThat(entities).isNotEmpty()
+                .extracting(SongEntity::getId)
+                .containsExactly(entity.getId());
     }
 
 }
